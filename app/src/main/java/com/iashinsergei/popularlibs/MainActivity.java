@@ -1,9 +1,10 @@
 package com.iashinsergei.popularlibs;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,7 +22,8 @@ import io.reactivex.schedulers.Schedulers;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-    TextView textView;
+    TextView tvCounter;
+    Button button;
     Long counter = 60L;
 
     @Override
@@ -29,26 +31,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = findViewById(R.id.textView);
+        tvCounter = findViewById(R.id.tv_count);
+        button = findViewById(R.id.button);
+
+        button.setOnClickListener(v -> Toast.makeText(MainActivity.this, "is pressed", Toast.LENGTH_SHORT).show());
 
         Observable<Long> observable = Observable
                 .interval(1, TimeUnit.SECONDS)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .skip(1)
-                .take(61);
+                .take(60);
 
         observable.safeSubscribe(observer);
     }
 
     Observer<Long> observer = new Observer<Long>() {
+        Disposable disposable;
         @Override
-        public void onSubscribe(Disposable d) { }
-        @SuppressLint("SetTextI18n")
+        public void onSubscribe(Disposable d) {
+            button.setEnabled(false);
+            disposable = d;
+        }
+
         @Override
         public void onNext(Long l) {
             Log.i(TAG, "onNext: " + l);
-            textView.setText(String.valueOf(counter - l));
+            tvCounter.setText(String.valueOf(counter - l));
         }
         @Override
         public void onError(Throwable e) {
@@ -57,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onComplete() {
             Log.i(TAG,"onCompleted");
-            textView.setText("complete");
+            button.setEnabled(true);
+            disposable.dispose();
         }
     };
 
