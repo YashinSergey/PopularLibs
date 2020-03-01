@@ -22,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     TextView textView;
-    Long counter = 20L;
+    Long counter = 60L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .skip(1)
-                .take(20);
+                .take(61);
 
         observable.safeSubscribe(observer);
     }
